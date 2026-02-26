@@ -4,115 +4,36 @@ import { FluidInput } from "../ui/fluid-input";
 import { FluidSelect } from "../ui/fluid-select";
 import { MagneticButton } from "../ui/magnetic-button";
 import { motion } from "framer-motion";
-import { Upload, X, File, CheckCircle2 } from "lucide-react";
+import { Upload, X, File, CheckCircle2, Loader2 } from "lucide-react";
 import { useState, useRef } from "react";
-import { supabase } from "@/lib/supabase";
 import { countries } from "@/lib/countries";
 import { cn } from "@/lib/utils";
-import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-// React-Select styles for dark theme
-const customStyles = {
-    control: (provided: any, state: any) => ({
-        ...provided,
-        backgroundColor: "transparent",
-        borderColor: state.isFocused ? "white" : "#262626", // neutral-800
-        borderTop: "none",
-        borderLeft: "none",
-        borderRight: "none",
-        borderBottom: `1px solid ${state.isFocused ? "white" : "#262626"}`,
-        borderRadius: 0,
-        boxShadow: "none",
-        "&:hover": {
-            borderColor: "white"
-        },
-        padding: "0",
-        minHeight: "41px"
-    }),
-    valueContainer: (provided: any) => ({
-        ...provided,
-        padding: "0",
-    }),
-    input: (provided: any) => ({
-        ...provided,
-        color: "white",
-        margin: "0",
-        padding: "0"
-    }),
-    placeholder: (provided: any) => ({
-        ...provided,
-        color: "transparent" // Managed by floating label
-    }),
-    singleValue: (provided: any) => ({
-        ...provided,
-        color: "white"
-    }),
-    multiValue: (provided: any) => ({
-        ...provided,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        borderRadius: "4px"
-    }),
-    multiValueLabel: (provided: any) => ({
-        ...provided,
-        color: "white",
-    }),
-    multiValueRemove: (provided: any) => ({
-        ...provided,
-        color: "#a3a3a3", // neutral-400
-        "&:hover": {
-            backgroundColor: "rgba(255, 255, 255, 0.2)",
-            color: "white"
-        }
-    }),
-    menu: (provided: any) => ({
-        ...provided,
-        backgroundColor: "#000",
-        border: "1px solid #262626",
-        zIndex: 50
-    }),
-    option: (provided: any, state: any) => ({
-        ...provided,
-        backgroundColor: state.isSelected ? "rgba(255, 255, 255, 0.2)" : state.isFocused ? "rgba(255, 255, 255, 0.1)" : "transparent",
-        color: "white",
-        "&:hover": {
-            backgroundColor: "rgba(255, 255, 255, 0.1)"
-        }
-    }),
-    indicatorSeparator: () => ({ display: "none" }),
-    dropdownIndicator: (provided: any, state: any) => ({
-        ...provided,
-        color: state.isFocused ? "white" : "#737373", // neutral-500
-        "&:hover": { color: "white" },
-        transform: state.isFocused ? "rotate(180deg)" : "none",
-        transition: "transform 0.3s ease",
-        padding: "0"
-    }),
-};
+
 
 export function ApplicationForm() {
     const [dragActive, setDragActive] = useState(false);
     const [file, setFile] = useState<File | null>(null);
+    const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const coverLetterInputRef = useRef<HTMLInputElement>(null);
+    const videoInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         countryCode: "+974",
         phone: "",
-        location: "",
         nationality: "",
-        age: "",
-        gender: "",
     });
 
     const [availabilityDate, setAvailabilityDate] = useState<Date | null>(null);
-    const [selectedModalities, setSelectedModalities] = useState<any[]>([]);
-    const [selectFocused, setSelectFocused] = useState(false);
     const [dateFocused, setDateFocused] = useState(false);
 
     const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
@@ -141,12 +62,15 @@ export function ApplicationForm() {
         return true;
     };
 
-    const handleFileSelect = (selectedFile: File) => {
+    const handleFileSelect = (selectedFile: File, type: 'cv' | 'cover' | 'video') => {
         if (validateFile(selectedFile)) {
-            setFile(selectedFile);
+            if (type === 'cv') setFile(selectedFile);
+            else if (type === 'cover') setCoverLetterFile(selectedFile);
+            else if (type === 'video') setVideoFile(selectedFile);
         } else {
-            // Reset input so they can select the same file again if they want
-            if (fileInputRef.current) fileInputRef.current.value = "";
+            if (type === 'cv' && fileInputRef.current) fileInputRef.current.value = "";
+            else if (type === 'cover' && coverLetterInputRef.current) coverLetterInputRef.current.value = "";
+            else if (type === 'video' && videoInputRef.current) videoInputRef.current.value = "";
         }
     };
 
@@ -169,7 +93,7 @@ export function ApplicationForm() {
                 setError("Please upload only one file.");
                 return;
             }
-            handleFileSelect(e.dataTransfer.files[0]);
+            handleFileSelect(e.dataTransfer.files[0], 'cv');
         }
     };
 
@@ -187,76 +111,54 @@ export function ApplicationForm() {
             return;
         }
 
-        if (!file) {
-            setError("Please upload your CV / Resume.");
+        if (!file || !coverLetterFile) {
+            setError("Please upload both your CV and Cover Letter.");
             return;
         }
 
         setIsSubmitting(true);
 
         try {
-            const brandId = process.env.NEXT_PUBLIC_BRAND_ID || '';
-            let fileUrl = "";
+            const apiFormData = new FormData();
+            apiFormData.append("cv_attach", file);
+            apiFormData.append("cover_latter_attach", coverLetterFile);
+            apiFormData.append("applicant_name", formData.name);
+            apiFormData.append("phone_number", formData.phone ? `${formData.countryCode} ${formData.phone}` : "");
+            apiFormData.append("email_id", formData.email);
+            apiFormData.append("when_can_join", availabilityDate ? availabilityDate.toISOString().split('T')[0] : "");
+            apiFormData.append("job_title", "HR-OPN-2026-0002");
+            apiFormData.append("nationality", formData.nationality || "");
 
-            // Upload file
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const filePath = `resumes/${fileName}`;
-
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('dox')
-                .upload(filePath, file);
-
-            if (uploadError) {
-                console.error("Upload error:", uploadError);
-                throw new Error("Failed to upload file. Please try again.");
+            if (videoFile) {
+                apiFormData.append("video", videoFile);
             }
 
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('dox')
-                .getPublicUrl(filePath);
+            const response = await fetch(
+                "https://erp.mtm-hub.com/api/v2/method/opening_jobs_api/apply_for_a_job",
+                {
+                    method: "POST",
+                    body: apiFormData,
+                }
+            );
 
-            fileUrl = publicUrl;
-
-            // Insert into leads table
-            const { error: insertError } = await supabase
-                .from('leads')
-                .insert([
-                    {
-                        full_name: formData.name,
-                        phone_number: formData.phone ? `${formData.countryCode} ${formData.phone}` : null,
-                        brand_id: brandId,
-                        form_code: 'LP_GROUP_INSTRUCTOR',
-                        status: 'New',
-                        dox_file_urls: [fileUrl],
-                        website_source: 'MTM Landing Page',
-                        metadata: {
-                            email: formData.email,
-                            location: formData.location || null,
-                            nationality: formData.nationality || null,
-                            age: formData.age ? parseInt(formData.age, 10) : null,
-                            gender: formData.gender || null,
-                            availability_date: availabilityDate ? availabilityDate.toISOString() : null,
-                            gx_modalities: selectedModalities.map(m => m.value),
-                            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                            referral: document.referrer || null,
-                        }
-                    }
-                ]);
-
-            if (insertError) {
-                console.error("Insert error:", insertError);
-                throw new Error("Failed to submit application. Please try again.");
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData?.message || "Failed to submit application.");
             }
+
+            const data = await response.json();
 
             // Success
             setIsSuccess(true);
-            setFormData({ name: "", email: "", countryCode: "+974", phone: "", location: "", nationality: "", age: "", gender: "" });
+            setFormData({ name: "", email: "", countryCode: "+974", phone: "", nationality: "" });
             setAvailabilityDate(null);
-            setSelectedModalities([]);
             setFile(null);
+            setCoverLetterFile(null);
+            setVideoFile(null);
+
             if (fileInputRef.current) fileInputRef.current.value = "";
+            if (coverLetterInputRef.current) coverLetterInputRef.current.value = "";
+            if (videoInputRef.current) videoInputRef.current.value = "";
 
             // Trigger Meta Pixel Lead Event
             if (typeof window !== "undefined" && (window as any).fbq) {
@@ -299,21 +201,6 @@ export function ApplicationForm() {
     }
 
     const nationalityOptions = countries.map(c => ({ label: c, value: c }));
-    const genderOptions = [
-        { label: "Male", value: "Male" },
-        { label: "Female", value: "Female" }
-    ];
-
-    const modalityOptions = [
-        { label: "Les Mills programs (BodyPump, BodyCombat, BodyAttack)", value: "Les Mills" },
-        { label: "TRX", value: "TRX" },
-        { label: "HIIT", value: "HIIT" },
-        { label: "Spinning", value: "Spinning" },
-        { label: "Zumba", value: "Zumba" },
-        { label: "Step & Aerobics", value: "Step & Aerobics" },
-        { label: "Belly Dance, Aero Dance, Choreography", value: "Dance Workouts" },
-        { label: "Pilates & Yoga", value: "Pilates & Yoga" }
-    ];
 
     return (
         <section id="apply" className="py-32 px-6 md:px-12 relative z-10 bg-black">
@@ -380,34 +267,11 @@ export function ApplicationForm() {
                                 </label>
                             </div>
                             <FluidSelect
-                                label="Current Location"
-                                id="location"
-                                value={formData.location}
-                                onChange={handleInputChange}
-                                options={nationalityOptions}
-                            />
-                            <FluidSelect
                                 label="Nationality"
                                 id="nationality"
                                 value={formData.nationality}
                                 onChange={handleInputChange}
                                 options={nationalityOptions}
-                            />
-                            <FluidInput
-                                label="Age"
-                                id="age"
-                                type="number"
-                                min="18"
-                                max="100"
-                                value={formData.age}
-                                onChange={handleInputChange}
-                            />
-                            <FluidSelect
-                                label="Gender"
-                                id="gender"
-                                value={formData.gender}
-                                onChange={handleInputChange}
-                                options={genderOptions}
                             />
 
                             {/* Date Picker Custom Styling Wrapper */}
@@ -472,24 +336,7 @@ export function ApplicationForm() {
                             </div>
                         </div>
 
-                        <div className="relative pt-6">
-                            <Select
-                                isMulti
-                                options={modalityOptions}
-                                styles={customStyles}
-                                value={selectedModalities}
-                                onChange={(newValue) => setSelectedModalities(newValue as any[])}
-                                onFocus={() => setSelectFocused(true)}
-                                onBlur={() => setSelectFocused(false)}
-                                placeholder=""
-                                instanceId="gx-modalities-select"
-                            />
-                            <label
-                                className={`absolute left-0 top-2 text-neutral-500 transition-all duration-300 pointer-events-none ${(selectFocused || selectedModalities.length > 0) ? "-top-2 text-xs text-white font-medium" : "top-8 text-neutral-500"}`}
-                            >
-                                GX Modalities Experience
-                            </label>
-                        </div>
+
 
                         <div className="space-y-4">
                             <div
@@ -508,7 +355,7 @@ export function ApplicationForm() {
                                     ref={fileInputRef}
                                     onChange={(e) => {
                                         if (e.target.files && e.target.files[0]) {
-                                            handleFileSelect(e.target.files[0]);
+                                            handleFileSelect(e.target.files[0], 'cv');
                                         }
                                     }}
                                     accept=".doc,.docx,.pdf,.ppt,.pptx,image/*"
@@ -557,6 +404,117 @@ export function ApplicationForm() {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Cover Letter Upload */}
+                            <div
+                                className={`border border-dashed rounded-xl p-8 transition-colors duration-300 relative ${!coverLetterFile && isSubmitting ? "border-red-500/50" : "border-white/20 hover:border-white/40"}`}
+                                onClick={() => coverLetterInputRef.current?.click()}
+                            >
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    id="cover-letter-upload"
+                                    ref={coverLetterInputRef}
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            handleFileSelect(e.target.files[0], 'cover');
+                                        }
+                                    }}
+                                    accept=".doc,.docx,.pdf,.ppt,.pptx,image/*"
+                                />
+
+                                {!coverLetterFile ? (
+                                    <div className="text-center cursor-pointer">
+                                        <Upload className="w-8 h-8 mx-auto mb-4 text-neutral-400" />
+                                        <p className="text-sm text-neutral-400 uppercase tracking-widest mb-2">
+                                            Upload Cover Letter <span className="text-red-500">*</span>
+                                        </p>
+                                        <p className="text-xs text-neutral-600">
+                                            Click to Browse
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                                        <div className="flex items-center space-x-4 overflow-hidden">
+                                            <div className="p-3 bg-white/10 rounded-full">
+                                                <File className="w-6 h-6 text-white" />
+                                            </div>
+                                            <div className="overflow-hidden">
+                                                <p className="text-sm font-medium text-white truncate max-w-[200px] md:max-w-xs">
+                                                    {coverLetterFile.name}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setCoverLetterFile(null);
+                                                if (coverLetterInputRef.current) coverLetterInputRef.current.value = "";
+                                            }}
+                                            className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                                        >
+                                            <X className="w-5 h-5 text-neutral-400 hover:text-white" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Video Upload (Optional) */}
+                            <div
+                                className={`border border-dashed rounded-xl p-8 transition-colors duration-300 relative border-white/20 hover:border-white/40`}
+                                onClick={() => videoInputRef.current?.click()}
+                            >
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    id="video-upload"
+                                    ref={videoInputRef}
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            handleFileSelect(e.target.files[0], 'video');
+                                        }
+                                    }}
+                                    accept="video/*"
+                                />
+
+                                {!videoFile ? (
+                                    <div className="text-center cursor-pointer">
+                                        <Upload className="w-8 h-8 mx-auto mb-4 text-neutral-400" />
+                                        <p className="text-sm text-neutral-400 uppercase tracking-widest mb-2">
+                                            Upload Video (Optional)
+                                        </p>
+                                        <p className="text-xs text-neutral-600">
+                                            Click to Browse
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                                        <div className="flex items-center space-x-4 overflow-hidden">
+                                            <div className="p-3 bg-white/10 rounded-full">
+                                                <File className="w-6 h-6 text-white" />
+                                            </div>
+                                            <div className="overflow-hidden">
+                                                <p className="text-sm font-medium text-white truncate max-w-[200px] md:max-w-xs">
+                                                    {videoFile.name}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setVideoFile(null);
+                                                if (videoInputRef.current) videoInputRef.current.value = "";
+                                            }}
+                                            className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                                        >
+                                            <X className="w-5 h-5 text-neutral-400 hover:text-white" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
                             {error && (
                                 <motion.p
                                     initial={{ opacity: 0, y: -5 }}
@@ -573,7 +531,10 @@ export function ApplicationForm() {
                                 className={`w-full md:w-auto px-12 ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? "Submitting..." : "Join our team"}
+                                <div className="flex items-center space-x-2">
+                                    {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                                    <span>{isSubmitting ? "Submitting..." : "Join our team"}</span>
+                                </div>
                             </MagneticButton>
                         </div>
                     </form>

@@ -94,6 +94,26 @@ export function Relocation() {
 
                 </div>
 
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative w-full aspect-[21/9] overflow-hidden grayscale hover:grayscale-0 transition-all duration-1000 group"
+                >
+                    <img
+                        src="/images/female-fitness-class.png"
+                        alt="MTM Fitness Class"
+                        className="object-cover w-full h-full scale-105 group-hover:scale-100 transition-transform duration-1000"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                    <div className="absolute bottom-12 left-12 right-12 flex flex-col items-start">
+                        <p className="text-white text-2xl md:text-3xl font-thin uppercase tracking-[0.2em]">
+                            Excellence in every move
+                        </p>
+                    </div>
+                </motion.div>
+
             </div>
         </section>
     );

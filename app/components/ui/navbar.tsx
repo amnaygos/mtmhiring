@@ -20,11 +20,14 @@ export function Navbar() {
             <div className="max-w-6xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
 
                 {/* Logo */}
-                <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center">
+                <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    className="flex items-center group/logo transition-transform duration-500 hover:scale-110 active:scale-95"
+                >
                     <img
                         src="/logo.png"
                         alt="MTM Group"
-                        className="h-8 object-contain"
+                        className="h-8 object-contain transition-all duration-500 group-hover/logo:brightness-150"
                     />
                 </button>
 

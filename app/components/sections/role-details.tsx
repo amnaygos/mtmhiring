@@ -51,27 +51,43 @@ export function RoleDetails() {
                         </p>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {starQualities.map((quality, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, x: 20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: i * 0.15 }}
-                            >
-                                <GlassCard className="flex flex-col items-start p-8 bg-white/5 hover:bg-white/10 transition-colors rounded-none border border-white/20">
-                                    <div>
-                                        <h4 className="text-2xl font-light uppercase tracking-widest mb-3 text-white">
-                                            {quality.title}
-                                        </h4>
-                                        <p className="text-neutral-400 text-base leading-relaxed font-thin tracking-wide">
-                                            {quality.description}
-                                        </p>
-                                    </div>
-                                </GlassCard>
-                            </motion.div>
-                        ))}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+                        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {starQualities.map((quality, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.5, delay: i * 0.15 }}
+                                >
+                                    <GlassCard className="flex flex-col items-start p-8 bg-white/5 hover:bg-white/10 transition-colors rounded-none border border-white/20 h-full">
+                                        <div>
+                                            <h4 className="text-2xl font-light uppercase tracking-widest mb-3 text-white">
+                                                {quality.title}
+                                            </h4>
+                                            <p className="text-neutral-400 text-base leading-relaxed font-thin tracking-wide">
+                                                {quality.description}
+                                            </p>
+                                        </div>
+                                    </GlassCard>
+                                </motion.div>
+                            ))}
+                        </div>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                            className="relative aspect-[3/4] overflow-hidden grayscale hover:grayscale-0 transition-all duration-1000 group"
+                        >
+                            <img
+                                src="/images/fitness-instructor.png"
+                                alt="MTM Instructor"
+                                className="object-cover w-full h-full scale-110 group-hover:scale-100 transition-transform duration-1000"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+                        </motion.div>
                     </div>
                 </div>
 
