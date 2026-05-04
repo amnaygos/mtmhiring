@@ -29,7 +29,7 @@ export function FluidInput({ label, id, className, ...props }: FluidInputProps) 
                 id={id}
                 {...props}
                 className={cn(
-                    "w-full bg-transparent border-b border-neutral-800 py-2 text-white placeholder-transparent focus:outline-none focus:border-white transition-colors duration-300",
+                    "w-full bg-white rounded-lg py-3 px-4 text-black font-medium transition-all duration-300 ring-1 ring-white/10 focus:outline-none focus:ring-white",
                     className
                 )}
                 onFocus={() => setFocused(true)}
@@ -39,8 +39,8 @@ export function FluidInput({ label, id, className, ...props }: FluidInputProps) 
             <label
                 htmlFor={id}
                 className={cn(
-                    "absolute left-0 top-2 text-neutral-500 transition-all duration-300 pointer-events-none",
-                    isActive ? "-top-2 text-xs text-white font-medium" : "top-8 text-neutral-500"
+                    "absolute left-0 transition-all duration-300 pointer-events-none",
+                    isActive ? "-top-2 text-xs text-white font-medium" : "top-8 left-4 text-neutral-500"
                 )}
             >
                 {label}

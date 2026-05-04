@@ -211,12 +211,18 @@ export function ApplicationForm() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h2 className="text-4xl md:text-6xl font-thin mb-6 text-left uppercase tracking-[0.1em]">
-                        Join the Team of Instructors
+                    <h2 className="text-4xl md:text-6xl font-thin mb-8 text-left uppercase tracking-[0.1em] leading-tight">
+                        Elite <span className="font-normal text-white/90">Fitness</span> <br /> 
+                        Careers in <span className="font-normal text-white/90">Qatar</span>
                     </h2>
-                    <p className="text-neutral-400 text-left mb-16 max-w-2xl text-lg md:text-xl font-light tracking-wide">
-                        We are seeking Fitness Group Instructors. Submit your credentials for review.
-                    </p>
+                    <div className="space-y-4 mb-16">
+                        <p className="text-xl md:text-2xl text-white font-medium tracking-wide">
+                            Earn up to 17,000 QAR per month.
+                        </p>
+                        <p className="text-lg text-neutral-400 font-light max-w-xl leading-relaxed">
+                            Join MTM Group and lead the next era of fitness in Doha. We are looking for world-class instructors to join our premier team.
+                        </p>
+                    </div>
 
                     <form className="space-y-12" onSubmit={handleSubmit}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
@@ -236,13 +242,13 @@ export function ApplicationForm() {
                                 onChange={handleInputChange}
                             />
                             <div className="relative pt-6 group">
-                                <div className="flex items-end border-b border-neutral-800 group-focus-within:border-white transition-colors duration-300">
+                                <div className="flex items-end bg-white rounded-lg overflow-hidden transition-all duration-300 ring-1 ring-white/10 focus-within:ring-white">
                                     <div className="w-20">
                                         <input
                                             id="countryCode"
                                             value={formData.countryCode}
                                             onChange={handleInputChange}
-                                            className="w-full bg-transparent py-2 text-white focus:outline-none text-center border-r border-neutral-800 group-focus-within:border-white/20"
+                                            className="w-full bg-transparent py-3 text-black font-medium focus:outline-none text-center border-r border-neutral-200"
                                             placeholder="+974"
                                         />
                                     </div>
@@ -252,7 +258,7 @@ export function ApplicationForm() {
                                             type="tel"
                                             value={formData.phone}
                                             onChange={handleInputChange}
-                                            className="w-full bg-transparent py-2 px-4 text-white focus:outline-none"
+                                            className="w-full bg-transparent py-3 px-4 text-black font-medium focus:outline-none placeholder:text-neutral-400"
                                             placeholder="Phone Number"
                                         />
                                     </div>
@@ -276,18 +282,23 @@ export function ApplicationForm() {
 
                             {/* Date Picker Custom Styling Wrapper */}
                             <div className="relative pt-6">
-                                <DatePicker
-                                    id="availabilityDate"
-                                    selected={availabilityDate}
-                                    onChange={(date: Date | null) => setAvailabilityDate(date)}
-                                    onFocus={() => setDateFocused(true)}
-                                    onBlur={() => setDateFocused(false)}
-                                    className={`w-full bg-transparent border-b border-neutral-800 py-2 text-white placeholder-transparent focus:outline-none focus:border-white transition-colors duration-300 ${!availabilityDate && !dateFocused ? 'text-transparent' : ''}`}
-                                    dateFormat="MMMM d, yyyy"
-                                    minDate={new Date()}
-                                    placeholderText="Select a date"
-                                    calendarClassName="bg-black border border-neutral-800 text-white !font-sans"
-                                />
+                                <div className={cn(
+                                    "bg-white rounded-lg transition-all duration-300 ring-1 ring-white/10 focus-within:ring-white",
+                                    !availabilityDate && !dateFocused ? "" : ""
+                                )}>
+                                    <DatePicker
+                                        id="availabilityDate"
+                                        selected={availabilityDate}
+                                        onChange={(date: Date | null) => setAvailabilityDate(date)}
+                                        onFocus={() => setDateFocused(true)}
+                                        onBlur={() => setDateFocused(false)}
+                                        className={`w-full bg-transparent py-3 px-4 text-black font-medium placeholder-transparent focus:outline-none ${!availabilityDate && !dateFocused ? 'text-transparent' : ''}`}
+                                        dateFormat="MMMM d, yyyy"
+                                        minDate={new Date()}
+                                        placeholderText="Select a date"
+                                        calendarClassName="bg-white border border-neutral-200 text-black !font-sans"
+                                    />
+                                </div>
                                 <label
                                     htmlFor="availabilityDate"
                                     className={`absolute left-0 top-2 text-neutral-500 transition-all duration-300 pointer-events-none ${(dateFocused || availabilityDate) ? "-top-2 text-xs text-white font-medium" : "top-8 text-neutral-500"}`}
@@ -297,42 +308,44 @@ export function ApplicationForm() {
 
                                 {/* Injected styles for DatePicker internals to match dark theme */}
                                 <style jsx global>{`
-                                .react-datepicker-wrapper {
-                                    width: 100%;
-                                }
-                                .react-datepicker {
-                                    font-family: inherit !important;
-                                    background-color: #000 !important;
-                                    color: white !important;
-                                    border: 1px solid #262626 !important;
-                                }
-                                .react-datepicker__header {
-                                    background-color: #0a0a0a !important;
-                                    border-bottom: 1px solid #262626 !important;
-                                }
-                                .react-datepicker__current-month, .react-datepicker__day-name {
-                                    color: white !important;
-                                }
-                                .react-datepicker__day {
-                                    color: #d4d4d4 !important;
-                                }
-                                .react-datepicker__day:hover {
-                                    background-color: #262626 !important;
-                                }
-                                .react-datepicker__day--selected, .react-datepicker__day--keyboard-selected {
-                                    background-color: white !important;
-                                    color: black !important;
-                                }
-                                .react-datepicker__day--disabled {
-                                    color: #404040 !important;
-                                }
-                                .react-datepicker-popper[data-placement^=top] .react-datepicker__triangle::before, .react-datepicker-popper[data-placement^=bottom] .react-datepicker__triangle::before {
-                                    border-bottom-color: #262626 !important;
-                                }
-                                .react-datepicker-popper[data-placement^=top] .react-datepicker__triangle::after, .react-datepicker-popper[data-placement^=bottom] .react-datepicker__triangle::after {
-                                    border-bottom-color: #0a0a0a !important;
-                                }
-                            `}</style>
+                                 .react-datepicker-wrapper {
+                                     width: 100%;
+                                 }
+                                 .react-datepicker {
+                                     font-family: inherit !important;
+                                     background-color: #fff !important;
+                                     color: black !important;
+                                     border: 1px solid #e5e5e5 !important;
+                                     border-radius: 12px !important;
+                                     overflow: hidden !important;
+                                 }
+                                 .react-datepicker__header {
+                                     background-color: #f9f9f9 !important;
+                                     border-bottom: 1px solid #e5e5e5 !important;
+                                 }
+                                 .react-datepicker__current-month, .react-datepicker__day-name {
+                                     color: black !important;
+                                 }
+                                 .react-datepicker__day {
+                                     color: #404040 !important;
+                                 }
+                                 .react-datepicker__day:hover {
+                                     background-color: #f4f4f4 !important;
+                                 }
+                                 .react-datepicker__day--selected, .react-datepicker__day--keyboard-selected {
+                                     background-color: black !important;
+                                     color: white !important;
+                                 }
+                                 .react-datepicker__day--disabled {
+                                     color: #d4d4d4 !important;
+                                 }
+                                 .react-datepicker-popper[data-placement^=top] .react-datepicker__triangle::before, .react-datepicker-popper[data-placement^=bottom] .react-datepicker__triangle::before {
+                                     border-bottom-color: #e5e5e5 !important;
+                                 }
+                                 .react-datepicker-popper[data-placement^=top] .react-datepicker__triangle::after, .react-datepicker-popper[data-placement^=bottom] .react-datepicker__triangle::after {
+                                     border-bottom-color: #f9f9f9 !important;
+                                 }
+                             `}</style>
                             </div>
                         </div>
 

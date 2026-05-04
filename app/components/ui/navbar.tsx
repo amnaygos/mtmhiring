@@ -3,12 +3,6 @@
 import { motion } from "framer-motion";
 
 export function Navbar() {
-    const scrollToSection = (id: string) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: "smooth" });
-        }
-    };
 
     return (
         <motion.nav
@@ -31,33 +25,6 @@ export function Navbar() {
                     />
                 </button>
 
-                {/* Links */}
-                <div className="flex items-center space-x-4 sm:space-x-8 md:space-x-12">
-                    <button
-                        onClick={() => scrollToSection("apply")}
-                        className="text-[10px] sm:text-xs font-thin uppercase tracking-widest text-neutral-400 hover:text-white transition-colors"
-                    >
-                        Apply
-                    </button>
-                    <button
-                        onClick={() => scrollToSection("why-mtm")}
-                        className="text-[10px] sm:text-xs font-thin uppercase tracking-widest text-neutral-400 hover:text-white transition-colors"
-                    >
-                        Why MTM
-                    </button>
-                    <button
-                        onClick={() => scrollToSection("role")}
-                        className="text-[10px] sm:text-xs font-thin uppercase tracking-widest text-neutral-400 hover:text-white transition-colors"
-                    >
-                        Role
-                    </button>
-                    <button
-                        onClick={() => scrollToSection("relocation")}
-                        className="text-[10px] sm:text-xs font-thin uppercase tracking-widest text-neutral-400 hover:text-white transition-colors"
-                    >
-                        Qatar
-                    </button>
-                </div>
 
             </div>
         </motion.nav>

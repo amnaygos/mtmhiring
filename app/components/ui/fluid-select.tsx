@@ -30,7 +30,7 @@ export function FluidSelect({ label, id, className, options, ...props }: FluidSe
                 id={id}
                 {...props}
                 className={cn(
-                    "w-full bg-transparent border-b border-neutral-800 py-2 text-white outline-none focus:outline-none focus:border-white transition-colors duration-300 appearance-none cursor-pointer",
+                    "w-full bg-white rounded-lg py-3 px-4 text-black font-medium outline-none transition-all duration-300 ring-1 ring-white/10 focus:ring-white appearance-none cursor-pointer",
                     !isActive && "text-transparent",
                     className
                 )}
@@ -48,16 +48,16 @@ export function FluidSelect({ label, id, className, options, ...props }: FluidSe
             <label
                 htmlFor={id}
                 className={cn(
-                    "absolute left-0 top-2 text-neutral-500 transition-all duration-300 pointer-events-none",
-                    isActive ? "-top-2 text-xs text-white font-medium" : "top-8 text-neutral-500"
+                    "absolute left-0 transition-all duration-300 pointer-events-none",
+                    isActive ? "-top-2 text-xs text-white font-medium" : "top-8 left-4 text-neutral-500"
                 )}
             >
                 {label}
             </label>
             {/* Custom dropdown arrow */}
-            <div className="absolute right-0 top-8 pointer-events-none">
+            <div className="absolute right-4 top-9 pointer-events-none">
                 <svg
-                    className={cn("w-4 h-4 transition-transform duration-300 text-neutral-500", focused && "rotate-180 text-white")}
+                    className={cn("w-4 h-4 transition-transform duration-300 text-neutral-400", focused && "rotate-180 text-black")}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
