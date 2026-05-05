@@ -148,6 +148,11 @@ export function ApplicationForm() {
 
             const data = await response.json();
 
+            // Trigger Meta Pixel Lead Event
+            if (typeof window !== "undefined" && (window as any).fbq) {
+                (window as any).fbq('track', 'Lead');
+            }
+
             // Success
             setIsSuccess(true);
             setFormData({ name: "", email: "", countryCode: "+974", phone: "", nationality: "" });
@@ -159,11 +164,6 @@ export function ApplicationForm() {
             if (fileInputRef.current) fileInputRef.current.value = "";
             if (coverLetterInputRef.current) coverLetterInputRef.current.value = "";
             if (videoInputRef.current) videoInputRef.current.value = "";
-
-            // Trigger Meta Pixel Lead Event
-            if (typeof window !== "undefined" && (window as any).fbq) {
-                (window as any).fbq('track', 'Lead');
-            }
 
         } catch (err: any) {
             setError(err.message || "An unexpected error occurred.");

@@ -9,12 +9,9 @@ import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 const noteChoices = [
-    { label: "Yoga Instructor", value: "Yoga Instructor" },
-    { label: "HIIT Expert", value: "HIIT Expert" },
-    { label: "Personal Trainer", value: "Personal Trainer" },
-    { label: "Spinning Instructor", value: "Spinning Instructor" },
-    { label: "Zumba Master", value: "Zumba Master" },
-    { label: "Strength & Conditioning", value: "Strength & Conditioning" },
+    { label: "I am a Manager with over 4 years of experience in the fitness and wellness sector", value: "I am a Manager with over 4 years of experience in the fitness and wellness sector" },
+    { label: "I am a certified Personal Trainer with over 3 years of experience", value: "I am a certified Personal Trainer with over 3 years of experience" },
+    { label: "I am a qualified Group Exercise Instructor", value: "I am a qualified Group Exercise Instructor" },
 ];
 
 export function UnifiedSection() {
@@ -79,14 +76,15 @@ export function UnifiedSection() {
                 throw new Error(errData?.message || "Failed to submit application.");
             }
 
+            // Trigger Meta Pixel Lead Event
+            if (typeof window !== "undefined" && (window as any).fbq) {
+                (window as any).fbq('track', 'Lead');
+            }
+
             setIsSuccess(true);
             setFormData({ applicant_name: "", email_id: "", phone_number: "", notes: "" });
             setFile(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
-
-            if (typeof window !== "undefined" && (window as Window & { fbq?: Function }).fbq) {
-                (window as Window & { fbq?: Function }).fbq('track', 'Lead');
-            }
 
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "An unexpected error occurred.");
@@ -215,7 +213,7 @@ export function UnifiedSection() {
                         />
 
                         <FluidSelect
-                            label="Primary Expertise"
+                            label="Your Professional Experience"
                             id="notes"
                             value={formData.notes}
                             onChange={handleInputChange}
